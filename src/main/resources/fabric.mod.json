@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "dsimonsays",
+  "version": "${version}",
+  "name": "dSimonSays",
+  "description": "A mod that highlights simon says' messages",
+  "authors": ["dominocodes"],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "codes.domino.dsimonsays.client.DSimonSaysClient"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "dsimonsays.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
