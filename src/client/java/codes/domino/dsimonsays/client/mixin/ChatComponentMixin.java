@@ -1,54 +1,25 @@
 package codes.domino.dsimonsays.client.mixin;
 
 import codes.domino.dsimonsays.client.cmd.SimonSaysCommand;
-import net.minecraft.client.GuiMessage;
-import net.minecraft.client.GuiMessageTag;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MessageSignature;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ChatComponent.class)
 public class ChatComponentMixin {
 
-    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V", at = @At("HEAD"), cancellable = true)
-    public void addMessage(Component chatComponent, MessageSignature headerSignature, GuiMessageTag tag, CallbackInfo ci) {
-        if (SimonSaysCommand.getInstance() == null) {
-            return;
-        }
-        if (!SimonSaysCommand.getInstance().isEnabled()) {
-            return;
+    @ModifyVariable(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V"
+            , at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    public Component injected(Component chatComponent) {
+        if (SimonSaysCommand.getInstance() == null || !SimonSaysCommand.getInstance().isEnabled()) {
+            return chatComponent;
         }
         String simonsName = SimonSaysCommand.getInstance().getSimonsName();
         if (!chatComponent.getString().contains(simonsName)) {
-            return;
+            return chatComponent;
         }
-        ci.cancel();
-        GuiMessage guiMessage = new GuiMessage(Minecraft.getInstance().gui.getGuiTicks(),
-                Component.literal(chatComponent.getString().replace(simonsName, "§c§l" + simonsName)), headerSignature, tag);
-        this.logChatMessage(guiMessage);
-        this.addMessageToDisplayQueue(guiMessage);
-        this.addMessageToQueue(guiMessage);
-
+        return Component.literal(chatComponent.getString().replace(simonsName, "§c§l" + simonsName));
     }
-
-    @Shadow
-    private void addMessageToQueue(GuiMessage guiMessage) {
-    }
-
-    @Shadow
-    private void addMessageToDisplayQueue(GuiMessage guiMessage) {
-    }
-
-    @Shadow
-    private void logChatMessage(GuiMessage message) {
-
-    }
-
 }
